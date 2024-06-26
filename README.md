@@ -77,6 +77,7 @@ Building the advanced usage example: go to the directory example_backlight. Foll
 ![](img/blconnect.png)
 
 ## Release notes
+26-jun-2024: speed up writes, fix character position for 4-line displays, add single char write function
 4-mar-2021: added some useful methods to the library<br>
 3 -mar-2021: Added backlight option<br>
 27-feb-2021: First release
