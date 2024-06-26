@@ -46,9 +46,9 @@
 		uint32_t bit_value = pin_values_to_mask(raw_bits,5) ;
 		gpio_put_masked(this->LCDmask, bit_value) ;
 		gpio_put(this->LCDpins[E], HIGH) ;
-		sleep_ms(5) ;
+		sleep_us(50) ;
 		gpio_put(this->LCDpins[E], LOW) ; // gpio values on other pins are pushed at the HIGH->LOW change of the clock. 
-		sleep_ms(5) ;
+		sleep_us(50) ;
 	};
 		
 	void LCDdisplay::send_full_byte(uint rs, uint databits[]) { // RS + array of Bit7, ... , Bit0
@@ -155,7 +155,7 @@
 		
 		//set LCD to 4-bit mode and 1 or 2 lines
 		//by sending a series of Set Function commands to secure the state and set to 4 bits
-		if (no_lines == 2) { set_function_4[4] = 1; };
+		if (no_lines == 2 || no_lines == 4) { set_function_4[4] = 1; };
 		send_raw_data_one_cycle(set_function_8);
 		send_raw_data_one_cycle(set_function_8);
 		send_raw_data_one_cycle(set_function_8);
@@ -181,10 +181,15 @@
 			case 2: 
 				pos = 64*line+ pos + 0b10000000; 
 				break ;
-			case 4: 	if (line == 0 || line == 2) {
-					pos = 64*(line/2) + pos + 0b10000000;
+			case 4:
+			 	if (line == 0) {
+					pos += 0x80;
+				} else if (line == 1) {
+					pos += 0x80 + 0x40;
+				} else if (line == 2) {
+					pos += 0x80 + 0x14;
 				} else {
-					pos = 64*((line-1)/2) + 20 + pos + 0b10000000;
+					pos += 0x80 + 0x54;
 				};
 				break;
 			default:
@@ -192,6 +197,12 @@
 		};
 		uint_into_8bits(eight_bits,pos);
 		send_full_byte(COMMAND,eight_bits);
+	};
+
+	void LCDdisplay::write(const char chr) {
+		uint eight_bits[8];
+		uint_into_8bits(eight_bits,(uint)(chr));
+		send_full_byte(DATA, eight_bits);
 	};
 	
 	void LCDdisplay::print(const char * str) {

@@ -43,7 +43,11 @@ class LCDdisplay {
 	void init() ;
 
 	void goto_pos(int pos, int line);
+
+	// Write a single character
+	void write(const char chr);
 	
+	// Print a string
 	void print(const char * str);
 		
 	void print_wrapped(const char * str);
